@@ -1,9 +1,44 @@
 <script>
+  import { onMount } from 'svelte';
+  
   let isMenuOpen = false;
+  let feeds = [];
+  let currentPage = 1;
+  let totalPages = 0;
+  let feedId = 28;
+
+  async function fetchFeeds(page = 1) {
+    try {
+      const response = await fetch(`/api/update_selected_feed?feed_id=${feedId}&page=${page}`);
+      const data = await response.json();
+      if (data.success) {
+        feeds = data.feeds[0].items;
+        totalPages = data.pagination.total_pages;
+        currentPage = data.pagination.current_page;
+      }
+    } catch (error) {
+      console.error('Error fetching feeds:', error);
+    }
+  }
 
   function toggleMenu() {
     isMenuOpen = !isMenuOpen;
   }
+
+  function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('zh-CN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  onMount(() => {
+    fetchFeeds(1);
+  });
 </script>
 
 <div class="flex min-h-screen bg-gray-100">
@@ -62,31 +97,61 @@
   <main class="flex-1 p-4 md:p-8">
     <h1 class="text-2xl font-bold mb-6">Latest</h1>
     
-    <!-- 文章卡片 -->
+    <!-- 文章卡片网格 -->
     <div class="grid gap-6 md:grid-cols-2">
-      <article class="bg-white rounded-lg shadow-md overflow-hidden">
-        <div class="h-48 bg-gray-200"></div>
-        <div class="p-4">
-          <h2 class="text-xl font-bold mb-2">Meta AI提出了一种新的语言模型架构"Large Language Model (LCM)"让模型更像人类思考</h2>
-          <div class="text-gray-600 text-sm">
-            <span>159 VIEWS</span>
-            <span class="mx-2">•</span>
-            <span>2024年12月25日</span>
+      {#each feeds as item}
+        <article class="bg-white rounded-lg shadow-md overflow-hidden">
+          <img 
+            src={item.image_url} 
+            alt={item.title}
+            class="w-full h-48 object-cover"
+            onerror="this.src='https://via.placeholder.com/400x225'"
+          />
+          <div class="p-4">
+            <h2 class="text-xl font-bold mb-2">{item.title}</h2>
+            <p class="text-gray-600 mb-4 line-clamp-2">{item.summary}</p>
+            <div class="text-gray-600 text-sm flex justify-between items-center">
+              <div class="flex items-center">
+                <img 
+                  src={`/api/${item.favicon}`} 
+                  alt="source icon" 
+                  class="w-4 h-4 mr-2"
+                />
+                <span>{item.rss_title}</span>
+              </div>
+              <span>{formatDate(item.time)}</span>
+            </div>
           </div>
-        </div>
-      </article>
-      
-      <article class="bg-white rounded-lg shadow-md overflow-hidden">
-        <div class="h-48 bg-gray-200"></div>
-        <div class="p-4">
-          <h2 class="text-xl font-bold mb-2">Anthropic 公布了一种全新的 AI 超越技术 可以让AI更像人类</h2>
-          <div class="text-gray-600 text-sm">
-            <span>230 VIEWS</span>
-            <span class="mx-2">•</span>
-            <span>2024年12月23日</span>
-          </div>
-        </div>
-      </article>
+        </article>
+      {/each}
+    </div>
+
+    <!-- 分页控件 -->
+    <div class="mt-8 flex justify-center space-x-2">
+      <button 
+        class="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
+        disabled={currentPage === 1}
+        on:click={() => fetchFeeds(currentPage - 1)}
+      >
+        上一页
+      </button>
+      <span class="px-4 py-2">第 {currentPage} 页，共 {totalPages} 页</span>
+      <button 
+        class="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
+        disabled={currentPage === totalPages}
+        on:click={() => fetchFeeds(currentPage + 1)}
+      >
+        下一页
+      </button>
     </div>
   </main>
 </div>
+
+<style>
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>
