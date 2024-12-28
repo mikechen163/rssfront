@@ -15,7 +15,7 @@
   let selectedArticle = null;
   let isMobile = false;
   let isListView = true;
-  let middleColumnWidth = 380; // 减小默认宽度
+  let middleColumnWidth = window.innerWidth < 768 ? window.innerWidth : 450; // 响应式默认宽度
   
   // 检测是否为移动设备
   function checkMobile() {
@@ -130,17 +130,35 @@
     }
   }
 
-  function toggleView() {
+  async function toggleView() {
     isListView = !isListView;
-    if (!isListView) {
-      // 切换到网格视图时，关闭文章详情
+    if (isListView && !selectedArticle && feeds.length > 0) {
+      // 切换到列表视图时，如果没有选中的文章且列表不为空，则自动选中第一篇
+      const firstItem = feeds[0];
+      await fetchArticleContent(firstItem.itemid, firstItem);
+    } else if (!isListView) {
+      // 切换到网格视图时，清除选中状态
       selectedArticle = null;
     }
   }
 
   function handleResize(newWidth) {
-    middleColumnWidth = newWidth;
+    // 根据屏幕宽度调整限制
+    const maxWidth = window.innerWidth < 768 ? window.innerWidth - 32 : 400; // 移动端预留边距
+    middleColumnWidth = Math.max(260, Math.min(newWidth, maxWidth));
   }
+
+  // 监听窗口大小变化
+  onMount(() => {
+    const handleWindowResize = () => {
+      if (window.innerWidth < 768) {
+        middleColumnWidth = window.innerWidth - 32; // 移动端自动调整宽度
+      }
+    };
+
+    window.addEventListener('resize', handleWindowResize);
+    return () => window.removeEventListener('resize', handleWindowResize);
+  });
 </script>
 
 <div class="flex min-h-screen bg-gray-100">
@@ -152,7 +170,7 @@
     <i class="fas fa-bars text-xl"></i>
   </button>
 
-  <!-- 侧边栏 -->
+  <!-- 侧边栏 - 固定宽度 264px -->
   <aside class={`fixed lg:static w-64 h-full bg-white shadow-lg transform transition-transform duration-300 ease-in-out overflow-y-auto 
     ${isMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
     ${selectedArticle && isListView ? 'lg:block' : 'lg:block'}`}
@@ -193,12 +211,12 @@
     </div>
   </aside>
 
-  <!-- 主要内容区域 - 调整最小宽度 -->
+  <!-- ��要内容区域 - 可调整宽度 -->
   <main 
-    class={`flex-1 mt-16 lg:mt-0 min-w-0 transition-[width] ${
+    class={`mt-16 lg:mt-0 min-w-0 transition-[width] ${
       isListView ? 'p-4' : 'p-2 md:p-4'
     } ${
-      selectedArticle && isListView ? 'middle-column' : ''
+      selectedArticle && isListView ? 'middle-column' : 'flex-1'
     }`}
     style={selectedArticle && isListView ? `width: ${middleColumnWidth}px` : ''}
   >
@@ -234,30 +252,32 @@
       <!-- 文章列表/网格 -->
       {#if selectedArticle && isListView}
         <!-- 列表视图 -->
-        <div class="space-y-4">
+        <div class="space-y-3">
           {#each feeds as item (item.itemid)}
             <article 
-              class="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-xl transition-shadow {selectedArticle?.itemid === item.itemid ? 'ring-2 ring-blue-500' : ''}"
+              class="bg-white rounded-lg shadow-sm overflow-hidden cursor-pointer hover:shadow-md transition-shadow {selectedArticle?.itemid === item.itemid ? 'ring-2 ring-blue-500' : ''}"
               on:click={() => fetchArticleContent(item.itemid, item)}
             >
-              <div class="flex h-32">
-                <img 
-                  src={item.image_url} 
-                  alt={item.title}
-                  class="w-32 h-full object-cover"
-                  onerror="this.src='https://via.placeholder.com/400x225'"
-                />
-                <div class="flex-1 p-4">
-                  <h2 class="text-lg font-bold mb-2 line-clamp-2">{item.title}</h2>
-                  <div class="text-gray-600 text-sm flex items-center mt-auto">
+              <div class="flex h-24">
+                <div class="flex-1 p-3 min-w-0">
+                  <h2 class="text-base font-medium mb-1 line-clamp-2">{item.title}</h2>
+                  <div class="text-gray-600 text-xs flex items-center mt-auto">
                     <img 
                       src={`/api/${item.favicon}`} 
                       alt="source icon" 
-                      class="w-4 h-4 mr-2"
+                      class="w-3 h-3 mr-1"
                     />
-                    <span class="mr-4">{item.rss_title}</span>
-                    <span>{formatDate(item.time)}</span>
+                    <span class="mr-2 truncate">{item.rss_title}</span>
+                    <span class="flex-shrink-0">{formatDate(item.time)}</span>
                   </div>
+                </div>
+                <div class="w-24 flex-shrink-0">
+                  <img 
+                    src={item.image_url} 
+                    alt={item.title}
+                    class="w-full h-full object-cover"
+                    onerror="this.src='https://via.placeholder.com/400x225'"
+                  />
                 </div>
               </div>
             </article>
@@ -320,16 +340,16 @@
     {/if}
   </main>
 
-  <!-- 分隔线容器 - 增加宽度和视觉效果 -->
+  <!-- 分隔线 -->
   {#if selectedArticle && isListView}
     <div class="hidden lg:flex items-center h-full w-2 hover:w-4 group transition-all">
       <Resizer onResize={handleResize} />
     </div>
   {/if}
 
-  <!-- 文章详情面板 -->
+  <!-- 文章详情面板 - 移除固定宽度，使用 flex-1 -->
   {#if selectedArticle && isListView}
-    <div class="hidden lg:block flex-1 h-screen sticky top-0 bg-white shadow-lg overflow-y-auto min-w-[400px]">
+    <div class="hidden lg:block flex-1 h-screen sticky top-0 bg-white shadow-lg overflow-y-auto">
       <ArticleDetail 
         content={selectedArticle} 
         onClose={() => selectedArticle = null}
@@ -359,7 +379,17 @@
   }
   
   :global(.middle-column) {
-    min-width: 280px;
-    max-width: calc(100% - 700px);
+    min-width: 360px !important;
+    max-width: 500px;
+    flex-shrink: 0;
+  }
+
+  /* 移动端样式调整 */
+  @media (max-width: 768px) {
+    :global(.middle-column) {
+      min-width: auto !important;
+      max-width: 100% !important;
+      width: 100% !important;
+    }
   }
 </style>

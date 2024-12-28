@@ -28,7 +28,7 @@
 <svelte:window on:keydown={handleKeydown}/>
 
 {#if content}
-  <div class={isDesktop ? '' : 'fixed inset-0 bg-white z-50'}>
+  <div class={isDesktop ? '' : 'fixed inset-0 bg-white z-50 w-full'}>
     <div class="flex flex-col h-full">
       <!-- 顶部导航栏 -->
       <div class="h-16 border-b flex items-center px-4 justify-between bg-white sticky top-0 z-10">
@@ -53,7 +53,7 @@
 
       <!-- 文章内容 -->
       <div class="flex-1 overflow-y-auto">
-        <div class="max-w-3xl mx-auto px-4 py-8">
+        <div class="max-w-full md:max-w-3xl mx-auto px-4 py-8">
           <!-- 文章标题和元信息 -->
           <div class="mb-4">
             <h1 class="text-2xl font-bold mb-4">{content.title}</h1>

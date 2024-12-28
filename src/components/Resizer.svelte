@@ -18,7 +18,7 @@
     if (!isDragging) return;
     
     const diff = event.clientX - startX;
-    const newWidth = Math.max(280, Math.min(startWidth + diff, window.innerWidth - 700));
+    const newWidth = Math.max(200, Math.min(startWidth + diff, window.innerWidth - 800));
     onResize(newWidth);
   }
   
