@@ -75,13 +75,13 @@
     feeds = [];
     rssFeeds = [];
     groupedFeeds = {};
+    feedId = null;  // 清除当前选中的订阅源
   }
 
   onMount(() => {
     checkMobile();
     window.addEventListener('resize', checkMobile);
     checkLoginStatus();
-    fetchFeeds(1);
 
     return () => {
       window.removeEventListener('resize', checkMobile);
@@ -107,7 +107,12 @@
         return acc;
       }, {});
 
-      console.log('Grouped feeds:', groupedFeeds); // 调试用
+      // 如果有订阅源，设置第一个订阅源的 ID
+      if (data.length > 0) {
+        feedId = data[0].rssid;
+        // 获取该订阅源的文章
+        await fetchFeeds(1);
+      }
     } catch (error) {
       console.error('Error fetching RSS feeds:', error);
       groupedFeeds = {}; // 确保在错误时有一个空对象
