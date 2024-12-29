@@ -677,7 +677,7 @@
             <button 
               class="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
               disabled={currentPage === 1 || isLoading}
-              on:click={() => fetchFeeds(currentPage - 1)}
+              on:click={() => fetchFeeds(currentPage - 1, currentCategory)}
             >
               上一页
             </button>
@@ -685,7 +685,7 @@
             <button 
               class="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
               disabled={currentPage === totalPages || isLoading}
-              on:click={() => fetchFeeds(currentPage + 1)}
+              on:click={() => fetchFeeds(currentPage + 1, currentCategory)}
             >
               下一页
             </button>
