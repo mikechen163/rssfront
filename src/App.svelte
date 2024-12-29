@@ -26,6 +26,7 @@
   let showLoginDialog = false; // 改为默认不显示
   let userId = null;
   let userName = '';
+  let currentCategory = null;
   
   // 判断是否使用中间栏布局
   $: useMiddleColumn = viewMode === 'list' && selectedArticle;
@@ -117,10 +118,15 @@
     }
   }
 
-  async function fetchFeeds(page = 1) {
+  async function fetchFeeds(page = 1, rclass = null) {
     isLoading = true;
     try {
-      const response = await fetch(`/api/update_selected_feed?feed_id=${feedId}&page=${page}`);
+      // 构建 URL，根据是否有 rclass 参数来决定使用哪种请求
+      const url = rclass 
+        ? `/api/update_selected_feed?rclass=${rclass}&page=${page}`
+        : `/api/update_selected_feed?feed_id=${feedId}&page=${page}`;
+        
+      const response = await fetch(url);
       const data = await response.json();
       if (data.success) {
         feeds = data.feeds[0].items;
@@ -143,10 +149,18 @@
     expandedCategories = expandedCategories; // 触发更新
   }
 
-  function selectFeed(rssid) {
-    feedId = rssid;
-    fetchFeeds(1);
-    if (window.innerWidth < 768) { // 在移动端自动关闭菜单
+  function selectFeed(rssid, rclass = null) {
+    if (rclass) {
+      feedId = null;
+      currentCategory = rclass; // 设置当前选中的分类
+      fetchFeeds(1, rclass);
+    } else {
+      feedId = rssid;
+      currentCategory = null; // 清除当前选中的分类
+      fetchFeeds(1);
+    }
+    
+    if (window.innerWidth < 768) {
       isMenuOpen = false;
     }
   }
@@ -375,6 +389,14 @@
                 
                 {#if expandedCategories[category]}
                   <div class="ml-4 space-y-1">
+                    <button 
+                      class="w-full text-left px-2 py-1 text-sm hover:bg-gray-100 rounded flex items-center {!feedId && category === currentCategory ? 'bg-blue-50 text-blue-600' : ''}"
+                      on:click={() => selectFeed(null, category)}
+                    >
+                      <i class="fas fa-layer-group w-4 h-4 mr-2"></i>
+                      <span class="truncate">全部</span>
+                    </button>
+                    
                     {#each feeds as feed}
                       <button 
                         class="w-full text-left px-2 py-1 text-sm hover:bg-gray-100 rounded flex items-center {feedId === feed.rssid ? 'bg-blue-50 text-blue-600' : ''}"
