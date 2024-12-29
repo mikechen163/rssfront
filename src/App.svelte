@@ -332,12 +332,13 @@
   </button>
 
   <!-- 侧边栏 - 调整宽度和显示逻辑 -->
-  <aside class={`fixed lg:static lg:flex-shrink-0 w-64 h-full bg-white shadow-lg transform transition-transform duration-300 ease-in-out overflow-y-auto 
+  <aside class={`fixed lg:fixed top-0 left-0 w-64 h-screen bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-40
     ${isMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
     ${useMiddleColumn ? 'lg:w-64' : 'lg:w-72'}`}
   >
-    <div class="flex flex-col h-full">
-      <div class="flex-1">
+    <div class="flex flex-col h-full relative">
+      <!-- 主要内容区域 -->
+      <div class="flex-1 overflow-y-auto pb-16">
         <div class="p-4">
           <h2 class="text-xl font-bold mb-8 md:block hidden">MENU</h2>
           <nav class="space-y-2">
@@ -373,14 +374,20 @@
           </nav>
         </div>
       </div>
-      
+
+      <!-- 用户菜单固定在视窗底部 -->
       {#if userName}
-        <div class="p-4 mt-auto border-t">
+        <div class="absolute bottom-0 left-0 right-0 border-t border-gray-200 p-4 bg-white">
           <UserMenu {userName} onLogout={handleLogout} />
         </div>
       {/if}
     </div>
   </aside>
+
+  <!-- 为了补偿固定定位侧边栏占用的空间，添加一个占位 div -->
+  <div class={`hidden lg:block flex-shrink-0 
+    ${useMiddleColumn ? 'w-64' : 'w-72'}`}>
+  </div>
 
   <!-- 主要内容区域 -->
   <main 
