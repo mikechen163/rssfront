@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { onMount } from 'svelte';
   import { scale } from 'svelte/transition';
   import ArticleDetail from './components/ArticleDetail.svelte';
@@ -331,6 +331,16 @@
     feedId = 99999; // 设置特殊的 feedId
     await fetchFeeds(1); // 获取最新数据
   }
+
+  function handleImageError(event: Event) {
+    const img = event.target as HTMLImageElement;
+    img.src = 'https://via.placeholder.com/400x225';
+  }
+
+  function handleLargeImageError(event: Event) {
+    const img = event.target as HTMLImageElement;
+    img.src = 'https://via.placeholder.com/1200x600';
+  }
 </script>
 
 <svelte:head>
@@ -562,14 +572,16 @@
                       <span class="flex-shrink-0">{formatDate(item.time)}</span>
                     </div>
                   </div>
-                  <div class="w-24 flex-shrink-0">
-                    <img 
-                      src={processImageUrl(item.image_url, viewMode)} 
-                      alt={item.title}
-                      class="w-full h-full object-cover"
-                      on:error={(e) => e.target.src = 'https://via.placeholder.com/400x225'}
-                    />
-                  </div>
+                  {#if item.image_url?.startsWith('http')}
+                    <div class="w-24 flex-shrink-0">
+                      <img 
+                        src={processImageUrl(item.image_url, viewMode)} 
+                        alt={item.title}
+                        class="w-full h-full object-cover"
+                        on:error={handleImageError}
+                      />
+                    </div>
+                  {/if}
                 </div>
               </article>
             {/each}
@@ -601,7 +613,7 @@
                         src={item.image_url} 
                         alt={item.title}
                         class="w-full h-auto rounded-lg"
-                        on:error={(e) => e.target.src = 'https://via.placeholder.com/1200x600'}
+                        on:error={handleLargeImageError}
                       />
                     </div>
                   {/if}
@@ -647,7 +659,7 @@
                     : 'w-full aspect-video object-cover'
                   }
                   on:click={(e) => viewMode === 'image' ? handleImageClick(e, item) : null}
-                  on:error={(e) => e.target.src = 'https://via.placeholder.com/400x225'}
+                  on:error={handleImageError}
                 />
                 {#if viewMode === 'grid'}
                   <div class="p-4">
