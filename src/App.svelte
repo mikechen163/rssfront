@@ -651,20 +651,22 @@
                 }`}
                 on:click={viewMode === 'image' ? null : () => handleItemClick(item)}
               >
-                <img 
-                  src={processImageUrl(item.image_url, viewMode)} 
-                  alt={item.title}
-                  class={viewMode === 'image' 
-                    ? 'absolute inset-0 w-full h-full object-cover'
-                    : 'w-full aspect-video object-cover'
-                  }
-                  on:click={(e) => viewMode === 'image' ? handleImageClick(e, item) : null}
-                  on:error={handleImageError}
-                />
+                {#if item.image_url?.startsWith('http')}
+                  <img 
+                    src={processImageUrl(item.image_url, viewMode)} 
+                    alt={item.title}
+                    class={viewMode === 'image' 
+                      ? 'absolute inset-0 w-full h-full object-cover'
+                      : 'w-full aspect-video object-cover'
+                    }
+                    on:click={(e) => viewMode === 'image' ? handleImageClick(e, item) : null}
+                    on:error={handleImageError}
+                  />
+                {/if}
                 {#if viewMode === 'grid'}
                   <div class="p-4">
-                    <h2 class="text-lg font-bold mb-2 line-clamp-2 hover:line-clamp-none">{item.title}</h2>
-                    <p class="text-gray-600 mb-4 text-sm line-clamp-2 hover:line-clamp-none">{item.summary}</p>
+                    <h2 class="text-lg font-bold mb-2 {item.image_url?.startsWith('http') ? 'line-clamp-2 hover:line-clamp-none' : ''}">{item.title}</h2>
+                    <p class="text-gray-600 mb-4 text-sm {item.image_url?.startsWith('http') ? 'line-clamp-2 hover:line-clamp-none' : ''}">{item.summary}</p>
                     <div class="text-gray-600 text-sm flex justify-between items-center">
                       <div class="flex items-center">
                         <img 
