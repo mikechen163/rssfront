@@ -57,14 +57,25 @@
           <!-- 文章标题和元信息 -->
           <div class="mb-4">
             <h1 class="text-2xl font-bold mb-4">{content.title}</h1>
-            <div class="flex items-center text-gray-600 text-sm mb-6">
+            <div class="flex items-center text-gray-600 text-sm mb-4">
               <img 
                 src={`/api/${content.favicon}`} 
                 alt="source icon" 
                 class="w-4 h-4 mr-2"
               />
               <span class="mr-4">{content.rss_title}</span>
-              <span>{formatDate(content.time)}</span>
+              <span class="mr-4">{formatDate(content.time)}</span>
+              {#if content.link}
+                <a 
+                  href={content.link} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  class="text-blue-600 hover:text-blue-800 flex items-center"
+                >
+                  <i class="fas fa-external-link-alt mr-1"></i>
+                  Original Link
+                </a>
+              {/if}
             </div>
           </div>
 

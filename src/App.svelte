@@ -192,7 +192,8 @@
           time: item.time,
           rss_title: item.rss_title,
           favicon: item.favicon,
-          itemid: item.itemid
+          itemid: item.itemid,
+          link: item.link
         };
         // 点击文章时自动切换到列表视图
         isListView = true;
@@ -608,7 +609,18 @@
                         class="w-4 h-4 mr-2"
                       />
                       <span class="mr-4">{item.rss_title}</span>
-                      <span>{formatDate(item.time)}</span>
+                      <span class="mr-4">{formatDate(item.time)}</span>
+                      {#if item.link}
+                        <a 
+                          href={item.link} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          class="text-blue-600 hover:text-blue-800 flex items-center"
+                        >
+                          <i class="fas fa-external-link-alt mr-1"></i>
+                          Original Link
+                        </a>
+                      {/if}
                     </div>
                   </div>
 
