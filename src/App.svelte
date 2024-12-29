@@ -107,12 +107,10 @@
         return acc;
       }, {});
 
-      // 如果有订阅源，设置第一个订阅源的 ID
-      if (data.length > 0) {
-        feedId = data[0].rssid;
-        // 获取该订阅源的文章
-        await fetchFeeds(1);
-      }
+      // 设置 feedId 为 99999 并获取 What's New 数据
+      feedId = 99999;
+      await fetchFeeds(1);
+
     } catch (error) {
       console.error('Error fetching RSS feeds:', error);
       groupedFeeds = {}; // 确保在错误时有一个空对象
@@ -313,6 +311,12 @@
     }
     return url;
   }
+
+  // 添加 What's New 处理函数
+  async function handleWhatsNew() {
+    feedId = 99999; // 设置特殊的 feedId
+    await fetchFeeds(1); // 获取最新数据
+  }
 </script>
 
 <svelte:head>
@@ -395,7 +399,11 @@
       <!-- 用户菜单固定在视窗底部 -->
       {#if userName}
         <div class="absolute bottom-0 left-0 right-0 border-t border-gray-200 p-4 bg-white">
-          <UserMenu {userName} onLogout={handleLogout} />
+          <UserMenu 
+            {userName} 
+            onLogout={handleLogout}
+            onWhatsNew={handleWhatsNew}
+          />
         </div>
       {/if}
     </div>

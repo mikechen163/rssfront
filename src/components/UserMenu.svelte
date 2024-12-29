@@ -2,6 +2,7 @@
   import { scale } from 'svelte/transition';
   export let userName = '';
   export let onLogout;
+  export let onWhatsNew;
   let showMenu = false;
 
   function toggleMenu() {
@@ -16,6 +17,16 @@
 
   // 获取用户名首字母并大写
   $: userInitial = userName ? userName[0].toUpperCase() : '';
+
+  function handleLogout() {
+    showMenu = false;
+    onLogout();
+  }
+
+  function handleWhatsNew() {
+    showMenu = false;
+    onWhatsNew();
+  }
 </script>
 
 <svelte:window on:click={handleClickOutside} />
@@ -50,13 +61,17 @@
       </button>
       <button
         class="w-full px-4 py-2 text-left hover:bg-gray-100 text-red-600 flex items-center space-x-2"
-        on:click={() => {
-          showMenu = false;
-          onLogout();
-        }}
+        on:click={handleLogout}
       >
         <i class="fas fa-sign-out-alt w-4"></i>
         <span>退出登录</span>
+      </button>
+      <button
+        class="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center space-x-2"
+        on:click={handleWhatsNew}
+      >
+        <i class="fas fa-bell w-5"></i>
+        <span>What's New</span>
       </button>
     </div>
   {/if}
