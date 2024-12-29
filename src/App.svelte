@@ -341,6 +341,12 @@
     const img = event.target as HTMLImageElement;
     img.src = 'https://via.placeholder.com/1200x600';
   }
+
+  // 添加一个辅助函数来限制标题长度
+  function truncateTitle(title: string, maxLength: number = 30) {
+    if (title.length <= maxLength) return title;
+    return title.slice(0, maxLength) + '...';
+  }
 </script>
 
 <svelte:head>
@@ -664,10 +670,11 @@
                   />
                 {/if}
                 {#if viewMode === 'grid'}
-                  <div class="p-4">
-                    <h2 class="text-lg font-bold mb-2 {item.image_url?.startsWith('http') ? 'line-clamp-2 hover:line-clamp-none' : ''}">{item.title}</h2>
-                    <p class="text-gray-600 mb-4 text-sm {item.image_url?.startsWith('http') ? 'line-clamp-2 hover:line-clamp-none' : ''}">{item.summary}</p>
-                    <div class="text-gray-600 text-sm flex justify-between items-center">
+                  <div class="p-4 h-full flex flex-col">
+                    <h2 class="text-lg font-bold mb-2 {item.image_url?.startsWith('http') ? 'line-clamp-2' : ''}">{truncateTitle(item.title)}</h2>
+                    <p class="text-gray-600 mb-4 text-sm {item.image_url?.startsWith('http') ? 'line-clamp-2' : ''} flex-grow overflow-hidden">{item.summary}</p>
+                    <!-- 使用 mt-auto 确保这个 div 始终在底部 -->
+                    <div class="text-gray-600 text-sm flex justify-between items-center mt-auto">
                       <div class="flex items-center">
                         <img 
                           src={`/api/${item.favicon}`} 
@@ -766,6 +773,13 @@
     min-width: 260px !important;
     max-width: 400px;
     flex-shrink: 0;
+  }
+
+  /* 修改网格文章的最大高度限制 */
+  article {
+    max-height: 342px;
+    display: flex;
+    flex-direction: column;
   }
 
   /* 移动端样式 */
