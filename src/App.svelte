@@ -19,8 +19,8 @@
   let selectedArticle = null;
   let isMobile = false;
   let isListView = false;
-  let middleColumnWidth = window.innerWidth < 768 ? window.innerWidth : 450; // 响应式默认宽度
-  let isViewMenuOpen = false; // 控制下拉菜单的显示状态
+  let middleColumnWidth = window.innerWidth < 768 ? window.innerWidth : 450; // Responsive default width
+  let isViewMenuOpen = false; // Control dropdown menu display state
   let viewMode = 'grid'; // 'grid', 'list', 'image', 'page'
   let selectedImageItem = null;
   let showLoginDialog = false; // 改为默认不显示
@@ -28,10 +28,10 @@
   let userName = '';
   let currentCategory = null;
   
-  // 判断是否使用中间栏布局
+  // Determine whether to use middle column layout
   $: useMiddleColumn = viewMode === 'list' && selectedArticle;
   
-  // 检测是否为移动设备
+  // Check if mobile device
   function checkMobile() {
     isMobile = window.innerWidth < 1024;
   }
@@ -168,7 +168,7 @@
   function formatDate(dateString) {
     try {
       const date = new Date(dateString);
-      return date.toLocaleDateString('zh-CN', {
+      return date.toLocaleDateString('en-US', {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
@@ -394,7 +394,7 @@
                       on:click={() => selectFeed(null, category)}
                     >
                       <i class="fas fa-layer-group w-4 h-4 mr-2"></i>
-                      <span class="truncate">全部</span>
+                      <span class="truncate">All</span>
                     </button>
                     
                     {#each feeds as feed}
@@ -464,16 +464,16 @@
           >
             {#if viewMode === 'grid'}
               <i class="fas fa-grid-2"></i>
-              <span class="hidden sm:inline ml-2">网格视图</span>
+              <span class="hidden sm:inline ml-2">Grid View</span>
             {:else if viewMode === 'list'}
               <i class="fas fa-list"></i>
-              <span class="hidden sm:inline ml-2">列表视图</span>
+              <span class="hidden sm:inline ml-2">List View</span>
             {:else if viewMode === 'image'}
               <i class="fas fa-image"></i>
-              <span class="hidden sm:inline ml-2">图片视图</span>
+              <span class="hidden sm:inline ml-2">Image View</span>
             {:else}
               <i class="fas fa-newspaper"></i>
-              <span class="hidden sm:inline ml-2">页面视图</span>
+              <span class="hidden sm:inline ml-2">Page View</span>
             {/if}
             <i class="fas fa-chevron-down text-xs text-gray-500 ml-1 sm:ml-2"></i>
           </button>
@@ -490,7 +490,7 @@
                 on:click={() => selectViewMode('grid')}
               >
                 <i class="fas fa-grid-2 w-5"></i>
-                <span>网格视图</span>
+                <span>Grid View</span>
                 {#if viewMode === 'grid'}
                   <i class="fas fa-check ml-auto"></i>
                 {/if}
@@ -501,7 +501,7 @@
                 on:click={() => selectViewMode('list')}
               >
                 <i class="fas fa-list w-5"></i>
-                <span>列表视图</span>
+                <span>List View</span>
                 {#if viewMode === 'list'}
                   <i class="fas fa-check ml-auto"></i>
                 {/if}
@@ -512,7 +512,7 @@
                 on:click={() => selectViewMode('image')}
               >
                 <i class="fas fa-image w-5"></i>
-                <span>图片视图</span>
+                <span>Image View</span>
                 {#if viewMode === 'image'}
                   <i class="fas fa-check ml-auto"></i>
                 {/if}
@@ -523,7 +523,7 @@
                 on:click={() => selectViewMode('page')}
               >
                 <i class="fas fa-newspaper w-5"></i>
-                <span>页面视图</span>
+                <span>Page View</span>
                 {#if viewMode === 'page'}
                   <i class="fas fa-check ml-auto"></i>
                 {/if}
@@ -538,7 +538,7 @@
     <div class="mt-2">
       {#if isLoading}
         <div class="flex justify-center items-center h-64">
-          <div class="text-gray-600">加载中...</div>
+          <div class="text-gray-600">Loading...</div>
         </div>
       {:else}
         {#if viewMode === 'list'}
@@ -567,7 +567,7 @@
                       src={processImageUrl(item.image_url, viewMode)} 
                       alt={item.title}
                       class="w-full h-full object-cover"
-                      onerror="this.src='https://via.placeholder.com/400x225'"
+                      on:error={(e) => e.target.src = 'https://via.placeholder.com/400x225'}
                     />
                   </div>
                 </div>
@@ -601,7 +601,7 @@
                         src={item.image_url} 
                         alt={item.title}
                         class="w-full h-auto rounded-lg"
-                        onerror="this.src='https://via.placeholder.com/1200x600'"
+                        on:error={(e) => e.target.src = 'https://via.placeholder.com/1200x600'}
                       />
                     </div>
                   {/if}
@@ -620,7 +620,7 @@
                     {/if}
                   {:catch error}
                     <div class="text-red-500">
-                      加载内容失败
+                      Failed to load content
                     </div>
                   {/await}
                 </div>
@@ -647,7 +647,7 @@
                     : 'w-full aspect-video object-cover'
                   }
                   on:click={(e) => viewMode === 'image' ? handleImageClick(e, item) : null}
-                  onerror="this.src='https://via.placeholder.com/400x225'"
+                  on:error={(e) => e.target.src = 'https://via.placeholder.com/400x225'}
                 />
                 {#if viewMode === 'grid'}
                   <div class="p-4">
@@ -679,15 +679,15 @@
               disabled={currentPage === 1 || isLoading}
               on:click={() => fetchFeeds(currentPage - 1, currentCategory)}
             >
-              上一页
+              Previous
             </button>
-            <span class="px-4 py-2">第 {currentPage} 页，共 {totalPages} 页</span>
+            <span class="px-4 py-2">Page {currentPage} of {totalPages}</span>
             <button 
               class="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
               disabled={currentPage === totalPages || isLoading}
               on:click={() => fetchFeeds(currentPage + 1, currentCategory)}
             >
-              下一页
+              Next
             </button>
           </div>
         {/if}

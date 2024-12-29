@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RSS News Reader - New Features Introduction</title>
+    <style>
+         body, html {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        .header {
+            background-image: url('background.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            padding: 100px 20px;
+            text-align: center;
+            position: relative;
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background-color: rgba(240, 243, 255, 0.7);
+        }
+        .header-content {
+            position: relative;
+            z-index: 1;
+
+        }
+        .header h1 {
+            color: #1a73e8;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .header p {
+            font-size: 1.2em;
+            color: #5f6368;
+        }
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .feature {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+        }
+        .feature h2 {
+            color: #1a73e8;
+            margin-top: 0;
+        }
+        .image-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .image-column {
+            flex: 1;
+            margin: 0 10px;
+            text-align: center;
+        }
+        .image-column img {
+            width: 100%;
+            max-width: 400px;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #dadce0;
+        }
+        .social-icons a {
+            margin: 0 10px;
+            color: #5f6368;
+            text-decoration: none;
+        }
+        @media (max-width: 768px) {
+            .image-row {
+                flex-direction: column;
+            }
+            .image-column {
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>New Features of RSS News Reader</h1>
+            <p>Explore a smarter, more convenient reading experience</p>
+        </div>
+    </div>
+
+    <div class="main-content">
+       <div class="feature">
+            <h2>1. Automatic Translation of English RSS News</h2>
+            <p>Our reader can automatically detect and translate English RSS news, allowing you to easily read international news without worrying about language barriers.</p>
+        </div>
+
+        <div class="feature">
+            <h2>2. Intelligent News Summary</h2>
+            <p>Leveraging advanced large language models, our reader can automatically generate news summaries, helping you quickly grasp the key points of news and save valuable time.</p>
+        </div>
+
+        <div class="feature">
+            <h2>3. Cross-Platform Support, Responsive Design</h2>
+            <p>Whether you're using a PC, iPad, or smartphone, our reader automatically adapts to different device interfaces. On mobile devices, we also support intuitive gesture operations for a smoother reading experience.</p>
+        </div>
+
+        <div class="feature">
+            <h2>4. Three Browsing Modes</h2>
+            <div class="image-row">
+                <div class="image-column">
+                    <img src="demo-magazine-view.png" alt="Magazine Mode">
+                </div>
+                <div class="image-column">
+                    <img src="demo-list-view.png" alt="List Mode">
+                </div>
+                <div class="image-column">
+                    <img src="demo-page-view.png" alt="Page Mode">
+                </div>
+            </div>
+            <p>We offer three browsing modes to meet different reading needs: Magazine mode for leisurely browsing, List mode for quick scanning, and Page mode for an immersive reading experience.</p>
+        </div>
+
+         <div class="feature">
+            <h2>5. Bookmark Function</h2>
+            <p>Found a valuable news article? Use our bookmark function to easily save and revisit it anytime.</p>
+        </div>
+
+        <div class="feature">
+            <h2>6. Automatic Scroll Loading</h2>
+            <p>When you reach the bottom of the page, we automatically load more content, ensuring your reading experience is continuous and uninterrupted.</p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="social-icons">
+            <a href="/terms.html">Terms</a>
+            <a href="/privacy.html">Privacy</a>
+            <a href="mailto:rss-support@tianxiacc.com?subject=Rss aggregator support">Write an email</a>
+            <a href="https://t.me/rssaggreg">Join Telegram group</a>
+        </div>
+        <p>&copy; 2024 RSS News Reader. All rights reserved.</p>
+    </div>
+</body>
+</html>

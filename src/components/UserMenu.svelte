@@ -4,18 +4,20 @@
   export let onLogout;
   export let onWhatsNew;
   let showMenu = false;
+  let showAboutDialog = false;
 
   function toggleMenu() {
     showMenu = !showMenu;
   }
 
   function handleClickOutside(event) {
-    if (!event.target.closest('.user-menu')) {
+    if (!event.target.closest('.user-menu') && !event.target.closest('.about-dialog')) {
       showMenu = false;
+      showAboutDialog = false;
     }
   }
 
-  // 获取用户名首字母并大写
+  // Get user initial in uppercase
   $: userInitial = userName ? userName[0].toUpperCase() : '';
 
   function handleLogout() {
@@ -26,6 +28,11 @@
   function handleWhatsNew() {
     showMenu = false;
     onWhatsNew();
+  }
+
+  function handleAboutClick() {
+    showMenu = false;
+    window.open('/about.html', '_blank');
   }
 </script>
 
@@ -51,27 +58,26 @@
     >
       <button
         class="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center space-x-2"
-        on:click={() => {
-          showMenu = false;
-          // 这里可以添加关于对话框的逻辑
-        }}
+        on:click={handleAboutClick}
       >
         <i class="fas fa-info-circle w-4"></i>
-        <span>关于</span>
+        <span>About</span>
       </button>
-      <button
-        class="w-full px-4 py-2 text-left hover:bg-gray-100 text-red-600 flex items-center space-x-2"
-        on:click={handleLogout}
-      >
-        <i class="fas fa-sign-out-alt w-4"></i>
-        <span>退出登录</span>
-      </button>
+
       <button
         class="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center space-x-2"
         on:click={handleWhatsNew}
       >
         <i class="fas fa-bell w-5"></i>
-        <span>What's New</span>
+        <span>Latest News</span>
+      </button>
+
+      <button
+        class="w-full px-4 py-2 text-left hover:bg-gray-100 text-red-600 flex items-center space-x-2"
+        on:click={handleLogout}
+      >
+        <i class="fas fa-sign-out-alt w-4"></i>
+        <span>Logout</span>
       </button>
     </div>
   {/if}
