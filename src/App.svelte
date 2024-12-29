@@ -296,6 +296,23 @@
     showLoginDialog = false;
     fetchRssFeeds(userId);
   }
+
+  // 添加一个新的辅助函数来处理图片URL
+  function processImageUrl(url, mode) {
+    // 如果是页面模式，直接返回原始URL
+    if (mode === 'page') {
+      return url;
+    }
+    
+    if (url && url.includes('fimage.tianxiacc.com/url=')) {
+      if (url.includes('media.zenfs.com') || url.includes('aolcdn.com') || url.includes('guim.co.uk')) {
+        return url;
+      } else {
+        return url.replace('fimage.tianxiacc.com/url=', 'resize.tianxiacc.com/?url=');
+      }
+    }
+    return url;
+  }
 </script>
 
 <svelte:head>
@@ -517,7 +534,7 @@
                   </div>
                   <div class="w-24 flex-shrink-0">
                     <img 
-                      src={item.image_url} 
+                      src={processImageUrl(item.image_url, viewMode)} 
                       alt={item.title}
                       class="w-full h-full object-cover"
                       onerror="this.src='https://via.placeholder.com/400x225'"
@@ -593,7 +610,7 @@
                 on:click={viewMode === 'image' ? null : () => handleItemClick(item)}
               >
                 <img 
-                  src={item.image_url} 
+                  src={processImageUrl(item.image_url, viewMode)} 
                   alt={item.title}
                   class={viewMode === 'image' 
                     ? 'absolute inset-0 w-full h-full object-cover'
