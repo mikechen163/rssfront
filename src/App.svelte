@@ -4,6 +4,8 @@
   import ArticleDetail from './components/ArticleDetail.svelte';
   import Resizer from './components/Resizer.svelte';
   import ImageDialog from './components/ImageDialog.svelte';
+  import LoginDialog from './components/LoginDialog.svelte';
+  import UserMenu from './components/UserMenu.svelte';
   
   let isMenuOpen = false;
   let feeds = [];
@@ -21,6 +23,9 @@
   let isViewMenuOpen = false; // 控制下拉菜单的显示状态
   let viewMode = 'grid'; // 'grid', 'list', 'image', 'page'
   let selectedImageItem = null;
+  let showLoginDialog = false; // 改为默认不显示
+  let userId = null;
+  let userName = '';
   
   // 判断是否使用中间栏布局
   $: useMiddleColumn = viewMode === 'list' && selectedArticle;
@@ -30,10 +35,52 @@
     isMobile = window.innerWidth < 1024;
   }
 
+  // 检查是否已登录
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  }
+
+  async function checkLoginStatus() {
+    const cookieUserId = getCookie('userid');
+    if (cookieUserId) {
+      try {
+        const response = await fetch(`/api/get_user_info?userid=${cookieUserId}`);
+        const data = await response.json();
+        if (data.success) {
+          userId = data.userid;
+          userName = data.name;
+          showLoginDialog = false;
+          await fetchRssFeeds(cookieUserId);
+        } else {
+          showLoginDialog = true;
+        }
+      } catch (error) {
+        console.error('Error checking login status:', error);
+        showLoginDialog = true;
+      }
+    } else {
+      showLoginDialog = true;
+    }
+  }
+
+  function handleLogout() {
+    // 清除 cookie
+    document.cookie = 'userid=;path=/;expires=Thu, 01 Jan 1970 00:00:01 GMT';
+    userId = null;
+    userName = '';
+    showLoginDialog = true;
+    // 清除其他相关状态
+    feeds = [];
+    rssFeeds = [];
+    groupedFeeds = {};
+  }
+
   onMount(() => {
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    fetchRssFeeds();
+    checkLoginStatus();
     fetchFeeds(1);
 
     return () => {
@@ -42,9 +89,9 @@
   });
 
   // 获取 RSS 源列表并按类别分组
-  async function fetchRssFeeds() {
+  async function fetchRssFeeds(userId) {
     try {
-      const response = await fetch('/api/get_user_rss/3');
+      const response = await fetch(`/api/get_user_rss/${userId}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -236,6 +283,14 @@
     // 然后加载文章内容
     await fetchArticleContent(item.itemid, item);
   }
+
+  // 修改登录成功处理函数
+  function handleLoginSuccess(event) {
+    userId = event.detail.userId;
+    userName = event.detail.name;
+    showLoginDialog = false;
+    fetchRssFeeds(userId);
+  }
 </script>
 
 <svelte:head>
@@ -276,39 +331,49 @@
     ${isMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
     ${useMiddleColumn ? 'lg:w-64' : 'lg:w-72'}`}
   >
-    <div class="p-4">
-      <h2 class="text-xl font-bold mb-8 md:block hidden">MENU</h2>
-      <nav class="space-y-2">
-        {#each Object.entries(groupedFeeds) as [category, feeds]}
-          <div class="space-y-1">
-            <button 
-              class="w-full text-left px-2 py-1 hover:bg-gray-100 rounded flex justify-between items-center"
-              on:click={() => toggleCategory(category)}
-            >
-              <span class="capitalize">{category}</span>
-              <i class={`fas fa-chevron-${expandedCategories[category] ? 'down' : 'right'} text-xs`}></i>
-            </button>
-            
-            {#if expandedCategories[category]}
-              <div class="ml-4 space-y-1">
-                {#each feeds as feed}
-                  <button 
-                    class="w-full text-left px-2 py-1 text-sm hover:bg-gray-100 rounded flex items-center {feedId === feed.rssid ? 'bg-blue-50 text-blue-600' : ''}"
-                    on:click={() => selectFeed(feed.rssid)}
-                  >
-                    <img 
-                      src={`/api/${feed.favicon}`} 
-                      alt="" 
-                      class="w-4 h-4 mr-2"
-                    />
-                    <span class="truncate">{feed.title}</span>
-                  </button>
-                {/each}
+    <div class="flex flex-col h-full">
+      <div class="flex-1">
+        <div class="p-4">
+          <h2 class="text-xl font-bold mb-8 md:block hidden">MENU</h2>
+          <nav class="space-y-2">
+            {#each Object.entries(groupedFeeds) as [category, feeds]}
+              <div class="space-y-1">
+                <button 
+                  class="w-full text-left px-2 py-1 hover:bg-gray-100 rounded flex justify-between items-center"
+                  on:click={() => toggleCategory(category)}
+                >
+                  <span class="capitalize">{category}</span>
+                  <i class={`fas fa-chevron-${expandedCategories[category] ? 'down' : 'right'} text-xs`}></i>
+                </button>
+                
+                {#if expandedCategories[category]}
+                  <div class="ml-4 space-y-1">
+                    {#each feeds as feed}
+                      <button 
+                        class="w-full text-left px-2 py-1 text-sm hover:bg-gray-100 rounded flex items-center {feedId === feed.rssid ? 'bg-blue-50 text-blue-600' : ''}"
+                        on:click={() => selectFeed(feed.rssid)}
+                      >
+                        <img 
+                          src={`/api/${feed.favicon}`} 
+                          alt="" 
+                          class="w-4 h-4 mr-2"
+                        />
+                        <span class="truncate">{feed.title}</span>
+                      </button>
+                    {/each}
+                  </div>
+                {/if}
               </div>
-            {/if}
-          </div>
-        {/each}
-      </nav>
+            {/each}
+          </nav>
+        </div>
+      </div>
+      
+      {#if userName}
+        <div class="p-4 mt-auto border-t">
+          <UserMenu {userName} onLogout={handleLogout} />
+        </div>
+      {/if}
     </div>
   </aside>
 
@@ -599,6 +664,13 @@
     <ImageDialog 
       item={selectedImageItem} 
       onClose={() => selectedImageItem = null} 
+    />
+  {/if}
+
+  {#if showLoginDialog}
+    <LoginDialog
+      on:loginSuccess={handleLoginSuccess}
+      on:close={() => showLoginDialog = false}
     />
   {/if}
 </div>
