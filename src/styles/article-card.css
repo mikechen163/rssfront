@@ -1,0 +1,41 @@
+.article-card {
+  @apply relative overflow-hidden rounded-lg bg-white shadow;
+  
+  /* 移动设备上的基础高度 */
+  min-height: 120px;
+}
+
+/* 当有图片时的样式 */
+.article-card.has-image {
+  /* 移动设备上有图片时的最小高度 */
+  min-height: 280px;
+}
+
+.article-card .article-image {
+  @apply w-full object-cover;
+  height: 160px; /* 固定图片高度 */
+}
+
+.article-card .article-content {
+  @apply p-3;
+}
+
+.article-card .article-title {
+  @apply text-base font-medium line-clamp-2;
+  min-height: 3rem;
+}
+
+.article-card .article-description {
+  @apply text-sm text-gray-600 mt-2 line-clamp-2;
+}
+
+/* 确保在移动设备上内容不会被截断 */
+@media (max-width: 640px) {
+  .article-card.has-image .article-content {
+    min-height: 120px;
+  }
+  
+  .article-card:not(.has-image) .article-content {
+    min-height: 100px;
+  }
+} 

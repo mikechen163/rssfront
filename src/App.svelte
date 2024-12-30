@@ -789,7 +789,7 @@
 
   /* 修改网格文章的最大高度限制 */
   article {
-    max-height: 342px;
+    max-height: 340px;
     display: flex;
     flex-direction: column;
   }
@@ -800,6 +800,10 @@
       min-width: auto !important;
       max-width: 100% !important;
       width: 100% !important;
+    }
+    
+    article {
+      max-height: 360px;  /* 移动端特定的高度 */
     }
   }
 
