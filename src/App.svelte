@@ -601,7 +601,16 @@
                 <div class="p-6">
                   <!-- 文章标题和元信息 -->
                   <div class="mb-6">
-                    <h1 class="text-2xl font-bold mb-4">{item.title}</h1>
+                    <h1 class="text-2xl font-bold mb-4">
+                      <a 
+                        href={item.link} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        class="hover:text-blue-600 hover:underline"
+                      >
+                        {item.title}
+                      </a>
+                    </h1>
                     <div class="flex items-center text-gray-600 text-sm">
                       <img 
                         src={`/api/${item.favicon}`} 
@@ -609,18 +618,7 @@
                         class="w-4 h-4 mr-2"
                       />
                       <span class="mr-4">{item.rss_title}</span>
-                      <span class="mr-4">{formatDate(item.time)}</span>
-                      {#if item.link}
-                        <a 
-                          href={item.link} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
-                          class="text-blue-600 hover:text-blue-800 flex items-center"
-                        >
-                          <i class="fas fa-external-link-alt mr-1"></i>
-                          Original Link
-                        </a>
-                      {/if}
+                      <span>{formatDate(item.time)}</span>
                     </div>
                   </div>
 

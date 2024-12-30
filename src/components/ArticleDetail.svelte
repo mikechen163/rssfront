@@ -55,27 +55,25 @@
       <div class="flex-1 overflow-y-auto">
         <div class="max-w-full md:max-w-3xl mx-auto px-4 py-8">
           <!-- 文章标题和元信息 -->
-          <div class="mb-4">
-            <h1 class="text-2xl font-bold mb-4">{content.title}</h1>
-            <div class="flex items-center text-gray-600 text-sm mb-4">
+          <div class="p-4 border-b">
+            <h1 class="text-xl font-bold mb-2">
+              <a 
+                href={content.link} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                class="hover:text-blue-600 hover:underline"
+              >
+                {content.title}
+              </a>
+            </h1>
+            <div class="flex items-center text-gray-600 text-sm">
               <img 
                 src={`/api/${content.favicon}`} 
-                alt="source icon" 
+                alt="" 
                 class="w-4 h-4 mr-2"
               />
               <span class="mr-4">{content.rss_title}</span>
-              <span class="mr-4">{formatDate(content.time)}</span>
-              {#if content.link}
-                <a 
-                  href={content.link} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  class="text-blue-600 hover:text-blue-800 flex items-center"
-                >
-                  <i class="fas fa-external-link-alt mr-1"></i>
-                  Original Link
-                </a>
-              {/if}
+              <span>{content.time}</span>
             </div>
           </div>
 
