@@ -326,7 +326,7 @@
   // 添加一个新的辅助函数来处理图片URL
   function processImageUrl(url, mode) {
     // 如果是页面模式，直接返回原始URL
-    if (mode === 'page') {
+    if (mode !== 'list') {
       return url;
     }
     
