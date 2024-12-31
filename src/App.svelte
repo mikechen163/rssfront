@@ -394,35 +394,32 @@
       {/if}
     </h1>
 
-    <!-- 视图切换按钮 -->
-    <div class="relative">
+    <!-- 视图切换按钮 - 调整样式 -->
+    <div class="relative ml-2">
       <button 
-        class="view-mode-button flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-50"
+        class="view-mode-button p-2 rounded-lg hover:bg-gray-100 text-gray-700"
         on:click|stopPropagation={toggleViewMenu}
       >
-        {#if viewMode === 'grid'}
-          <i class="fas fa-grid-2"></i>
-        {:else if viewMode === 'list'}
-          <i class="fas fa-list"></i>
-        {:else if viewMode === 'image'}
-          <i class="fas fa-image"></i>
-        {:else}
-          <i class="fas fa-newspaper"></i>
-        {/if}
+        <i class="fas {viewMode === 'grid' ? 'fa-th-large' : 
+                      viewMode === 'list' ? 'fa-list' :
+                      viewMode === 'image' ? 'fa-image' : 
+                      'fa-newspaper'} text-xl"></i>
       </button>
 
+      <!-- 下拉菜单 - 调整位置和样式 -->
       {#if isViewMenuOpen}
         <div 
           class="absolute right-0 mt-2 w-48 rounded-lg bg-white shadow-lg py-1 z-50 border"
           in:scale={{ duration: 100, start: 0.95 }}
           out:scale={{ duration: 100, start: 1 }}
+          style="top: 100%;"
         >
           <button
             class="w-full px-4 py-3 sm:py-2 text-left hover:bg-gray-100 flex items-center space-x-2"
             class:text-blue-600={viewMode === 'grid'}
             on:click={() => selectViewMode('grid')}
           >
-            <i class="fas fa-grid-2 w-5"></i>
+            <i class="fas fa-th-large w-5"></i>
             <span>Grid View</span>
             {#if viewMode === 'grid'}
               <i class="fas fa-check ml-auto"></i>
@@ -563,7 +560,7 @@
             on:click|stopPropagation={toggleViewMenu}
           >
             {#if viewMode === 'grid'}
-              <i class="fas fa-grid-2"></i>
+              <i class="fas fa-th-large"></i>
               <span class="hidden sm:inline ml-2">Grid View</span>
             {:else if viewMode === 'list'}
               <i class="fas fa-list"></i>
@@ -589,7 +586,7 @@
                 class:text-blue-600={viewMode === 'grid'}
                 on:click={() => selectViewMode('grid')}
               >
-                <i class="fas fa-grid-2 w-5"></i>
+                <i class="fas fa-th-large w-5"></i>
                 <span>Grid View</span>
                 {#if viewMode === 'grid'}
                   <i class="fas fa-check ml-auto"></i>
