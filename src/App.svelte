@@ -375,13 +375,96 @@
 </svelte:head>
 
 <div class="flex min-h-screen bg-gray-100">
-  <!-- 移动端菜单钮 -->
-  <button 
-    class="fixed top-0 left-0 z-50 lg:hidden bg-white p-4"
-    on:click={toggleMenu}
-  >
-    <i class="fas fa-bars text-xl"></i>
-  </button>
+  <!-- 移动端顶部导航栏 -->
+  <div class="fixed top-0 left-0 right-0 h-16 bg-white shadow-sm z-40 lg:hidden flex items-center px-4">
+    <!-- 菜单按钮 -->
+    <button 
+      class="p-2"
+      on:click={toggleMenu}
+    >
+      <i class="fas fa-bars text-xl"></i>
+    </button>
+
+    <!-- 标题 -->
+    <h1 class="text-lg font-bold ml-4 flex-1 truncate">
+      {#if feedId && rssFeeds.length}
+        {rssFeeds.find(f => f.rssid === feedId)?.title || 'Latest'}
+      {:else}
+        Latest
+      {/if}
+    </h1>
+
+    <!-- 视图切换按钮 -->
+    <div class="relative">
+      <button 
+        class="view-mode-button flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-50"
+        on:click|stopPropagation={toggleViewMenu}
+      >
+        {#if viewMode === 'grid'}
+          <i class="fas fa-grid-2"></i>
+        {:else if viewMode === 'list'}
+          <i class="fas fa-list"></i>
+        {:else if viewMode === 'image'}
+          <i class="fas fa-image"></i>
+        {:else}
+          <i class="fas fa-newspaper"></i>
+        {/if}
+      </button>
+
+      {#if isViewMenuOpen}
+        <div 
+          class="absolute right-0 mt-2 w-48 rounded-lg bg-white shadow-lg py-1 z-50 border"
+          in:scale={{ duration: 100, start: 0.95 }}
+          out:scale={{ duration: 100, start: 1 }}
+        >
+          <button
+            class="w-full px-4 py-3 sm:py-2 text-left hover:bg-gray-100 flex items-center space-x-2"
+            class:text-blue-600={viewMode === 'grid'}
+            on:click={() => selectViewMode('grid')}
+          >
+            <i class="fas fa-grid-2 w-5"></i>
+            <span>Grid View</span>
+            {#if viewMode === 'grid'}
+              <i class="fas fa-check ml-auto"></i>
+            {/if}
+          </button>
+          <button
+            class="w-full px-4 py-3 sm:py-2 text-left hover:bg-gray-100 flex items-center space-x-2"
+            class:text-blue-600={viewMode === 'list'}
+            on:click={() => selectViewMode('list')}
+          >
+            <i class="fas fa-list w-5"></i>
+            <span>List View</span>
+            {#if viewMode === 'list'}
+              <i class="fas fa-check ml-auto"></i>
+            {/if}
+          </button>
+          <button
+            class="w-full px-4 py-3 sm:py-2 text-left hover:bg-gray-100 flex items-center space-x-2"
+            class:text-blue-600={viewMode === 'image'}
+            on:click={() => selectViewMode('image')}
+          >
+            <i class="fas fa-image w-5"></i>
+            <span>Image View</span>
+            {#if viewMode === 'image'}
+              <i class="fas fa-check ml-auto"></i>
+            {/if}
+          </button>
+          <button
+            class="w-full px-4 py-3 sm:py-2 text-left hover:bg-gray-100 flex items-center space-x-2"
+            class:text-blue-600={viewMode === 'page'}
+            on:click={() => selectViewMode('page')}
+          >
+            <i class="fas fa-newspaper w-5"></i>
+            <span>Page View</span>
+            {#if viewMode === 'page'}
+              <i class="fas fa-check ml-auto"></i>
+            {/if}
+          </button>
+        </div>
+      {/if}
+    </div>
+  </div>
 
   <!-- 侧边栏 - 调整宽度和显示逻辑 -->
   <aside class={`fixed lg:fixed top-0 left-0 w-64 h-screen bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-40
@@ -462,8 +545,8 @@
     }`}
     style={useMiddleColumn ? `width: ${middleColumnWidth}px` : ''}
   >
-    <!-- 将标题栏改为固定定位 -->
-    <div class="sticky top-0 bg-gray-100 z-10 py-4 -mx-4 px-4">
+    <!-- 修改主内容区域的标题栏，使其在移动端隐藏 -->
+    <div class="sticky top-0 bg-gray-100 z-10 py-4 -mx-4 px-4 hidden lg:block">
       <div class="flex justify-between items-center">
         <h1 class="text-xl font-bold">
           {#if feedId && rssFeeds.length}
