@@ -79,13 +79,26 @@
     feedId = null;  // 清除当前选中的订阅源
   }
 
+  // 添加一个函数来处理移动端菜单的点击外部关闭
+  function handleClickOutside(event: MouseEvent) {
+    // 如果菜单是打开的，并且点击的不是菜单按钮或菜单内容
+    if (isMenuOpen && !event.target.closest('.menu-button') && !event.target.closest('.menu-content')) {
+      isMenuOpen = false;
+    }
+  }
+
   onMount(() => {
     checkMobile();
     window.addEventListener('resize', checkMobile);
     checkLoginStatus();
 
+    // 添加点击外部关闭菜单的事件监听
+    document.addEventListener('click', handleClickOutside);
+
     return () => {
       window.removeEventListener('resize', checkMobile);
+      // 清理事件监听
+      document.removeEventListener('click', handleClickOutside);
     };
   });
 
@@ -377,10 +390,10 @@
 <div class="flex min-h-screen bg-gray-100">
   <!-- 移动端顶部导航栏 -->
   <div class="fixed top-0 left-0 right-0 h-16 bg-white shadow-sm z-40 lg:hidden flex items-center px-4">
-    <!-- 菜单按钮 -->
+    <!-- 菜单按钮 - 添加 menu-button 类 -->
     <button 
-      class="p-2"
-      on:click={toggleMenu}
+      class="p-2 menu-button"
+      on:click|stopPropagation={toggleMenu}
     >
       <i class="fas fa-bars text-xl"></i>
     </button>
@@ -463,8 +476,8 @@
     </div>
   </div>
 
-  <!-- 侧边栏 - 调整宽度和显示逻辑 -->
-  <aside class={`fixed lg:fixed top-0 left-0 w-64 h-screen bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-40
+  <!-- 侧边栏 - 添加 menu-content 类 -->
+  <aside class={`fixed lg:fixed top-0 left-0 w-64 h-screen bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-40 menu-content
     ${isMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
     ${useMiddleColumn ? 'lg:w-64' : 'lg:w-72'}`}
   >
