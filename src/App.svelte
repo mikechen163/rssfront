@@ -92,14 +92,67 @@
     }
   }
 
+  // 添加键盘导航处理函数
+  function handleKeydown(event) {
+    // 只在列表模式时启用键盘导航
+    if (viewMode === 'list') {
+      const currentIndex = selectedArticle 
+        ? feeds.findIndex(item => item.itemid === selectedArticle.itemid)
+        : -1;
+      
+      switch (event.key) {
+        case 'ArrowUp':
+          event.preventDefault(); // 防止页面滚动
+          if (currentIndex > 0) {
+            const prevItem = feeds[currentIndex - 1];
+            // 确保滚动到视图中
+            const prevElement = document.querySelector(`[data-itemid="${prevItem.itemid}"]`);
+            prevElement?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            fetchArticleContent(prevItem.itemid, prevItem);
+          } else if (currentIndex === -1 && feeds.length > 0) {
+            // 如果没有选中项，选择第一项
+            const firstItem = feeds[0];
+            fetchArticleContent(firstItem.itemid, firstItem);
+          }
+          break;
+          
+        case 'ArrowDown':
+          event.preventDefault(); // 防止页面滚动
+          if (currentIndex < feeds.length - 1) {
+            const nextItem = feeds[currentIndex + 1];
+            // 确保滚动到视图中
+            const nextElement = document.querySelector(`[data-itemid="${nextItem.itemid}"]`);
+            nextElement?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            fetchArticleContent(nextItem.itemid, nextItem);
+          } else if (currentIndex === -1 && feeds.length > 0) {
+            // 如果没有选中项，选择第一项
+            const firstItem = feeds[0];
+            fetchArticleContent(firstItem.itemid, firstItem);
+          } else if (!isAllLoaded) {
+            // 如果到达底部，尝试加载更多
+            fetchFeeds(currentPage + 1, currentCategory, true).then(() => {
+              if (feeds.length > currentIndex + 1) {
+                const nextItem = feeds[currentIndex + 1];
+                fetchArticleContent(nextItem.itemid, nextItem);
+              }
+            });
+          }
+          break;
+      }
+    }
+  }
+
   onMount(() => {
     checkMobile();
     window.addEventListener('resize', checkMobile);
     checkLoginStatus();
+    
+    // 添加键盘事件监听
+    window.addEventListener('keydown', handleKeydown);
 
     // 添加点击外部关闭菜单的事件监听
     document.addEventListener('click', handleClickOutside);
-
+    
     // 添加滚动监听
     window.addEventListener('scroll', handleScroll);
     window.addEventListener('touchmove', handleTouchMove);
@@ -110,6 +163,7 @@
       document.removeEventListener('click', handleClickOutside);
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('keydown', handleKeydown); // 清理键盘事件监听
       if (scrollTimeout) clearTimeout(scrollTimeout);
       if (touchTimeout) clearTimeout(touchTimeout);
     };
@@ -798,6 +852,7 @@
           <div class="space-y-3">
             {#each feeds as item, index (item.itemid + '_' + index)}
               <article 
+                data-itemid={item.itemid}
                 class="bg-white rounded-lg shadow-sm overflow-hidden cursor-pointer hover:shadow-md transition-shadow {selectedArticle?.itemid === item.itemid ? 'ring-2 ring-blue-500' : ''}"
                 on:click={() => handleItemClick(item)}
               >
@@ -1066,5 +1121,16 @@
   /* 中文内容字体设置 */
   :global(.prose-chinese) {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Microsoft YaHei", "微软雅黑", sans-serif;
+  }
+
+  /* 焦点样式 */
+  article:focus-visible {
+    outline: none;
+    @apply ring-2 ring-blue-500;
+  }
+
+  /* 平滑滚动 */
+  .space-y-3 {
+    scroll-behavior: smooth;
   }
 </style>
