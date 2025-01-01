@@ -78,20 +78,22 @@
           </div>
 
           <!-- 封面图片 -->
-          <div class="w-full mb-6">
-            <img 
-              src={content.image_url} 
-              alt={content.title}
-              class="w-full h-auto rounded-lg"
-              onerror="this.src='https://via.placeholder.com/1200x600'"
-            />
-          </div>
+          {#if content.image_url}
+            <div class="w-full mb-6">
+              <img 
+                src={content.image_url} 
+                alt={content.title}
+                class="w-full h-auto rounded-lg"
+                onerror="this.src='https://via.placeholder.com/1200x600'"
+              />
+            </div>
+          {/if}
 
-          <!-- 文章内容 -->
+          <!-- 文章内容 - 移除了重复的标题部分 -->
           <div 
             class="article-content {content?.description?.match(/[\u4e00-\u9fa5]/) ? 'chinese' : ''}"
           >
-            {@html content.description}
+            {@html content.description.replace(/<h1[^>]*>.*?<\/h1>/g, '')}
           </div>
         </div>
       </div>
