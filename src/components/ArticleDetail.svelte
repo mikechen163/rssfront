@@ -7,7 +7,7 @@
 
   let touchStartX = 0;
   let touchEndX = 0;
-  const SWIPE_THRESHOLD = 50;
+  const SWIPE_THRESHOLD = 80;
 
   function handleTouchStart(event) {
     touchStartX = event.touches[0].clientX;
