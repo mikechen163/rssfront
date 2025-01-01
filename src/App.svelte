@@ -844,7 +844,7 @@
                       />
                       <span>{item.rss_title}</span>
                     </div>
-                    <h1 class="text-2xl font-bold mb-4">
+                    <h1 class="text-xl md:text-2xl font-bold mb-4">
                       <a 
                         href={item.link} 
                         target="_blank" 

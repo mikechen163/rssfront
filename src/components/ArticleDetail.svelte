@@ -92,25 +92,34 @@
         <div class="max-w-full md:max-w-3xl mx-auto px-4 py-8">
           <!-- 文章标题和元信息 -->
           <div class="p-4 border-b">
-            <div class="flex items-center text-gray-600 text-sm mb-2">
-              <img 
-                src={`/api/${content.favicon}`} 
-                alt="" 
-                class="w-4 h-4 mr-2"
-              />
-              <span>{content.rss_title}</span>
+            <div class="flex flex-col space-y-2">
+              <!-- RSS源信息 -->
+              <div class="flex items-center text-gray-600 text-sm">
+                <img 
+                  src={`/api/${content.favicon}`} 
+                  alt="" 
+                  class="w-4 h-4 mr-2"
+                />
+                <span>{content.rss_title}</span>
+              </div>
+              
+              <!-- 文章标题 -->
+              <h1 class="text-xl font-bold">
+                <a 
+                  href={content.link} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  class="hover:text-blue-600 hover:underline"
+                >
+                  {content.title}
+                </a>
+              </h1>
+              
+              <!-- 日期 -->
+              <div class="text-gray-600 text-sm">
+                {content.time}
+              </div>
             </div>
-            <h1 class="text-xl font-bold mb-2">
-              <a 
-                href={content.link} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                class="hover:text-blue-600 hover:underline"
-              >
-                {content.title}
-              </a>
-            </h1>
-            <div class="text-gray-600 text-sm">{content.time}</div>
           </div>
 
           <!-- 封面图片 -->
