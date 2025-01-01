@@ -888,17 +888,18 @@
                     <div class="p-4 h-full flex flex-col">
                       <h2 class="text-lg font-bold mb-2 {item.image_url?.startsWith('http') ? 'line-clamp-2' : ''}">{truncateTitle(item.title)}</h2>
                       <p class="text-gray-600 mb-4 text-sm {item.image_url?.startsWith('http') ? 'line-clamp-2' : ''} flex-grow overflow-hidden">{item.summary}</p>
-                      <!-- 使用 mt-auto 确保这个 div 始终在底部 -->
-                      <div class="text-gray-600 text-sm flex justify-between items-center mt-auto">
-                        <div class="flex items-center">
+                      <!-- 修改底部信息布局 -->
+                      <div class="text-gray-600 text-sm flex items-center mt-auto">
+                        <div class="flex items-center min-w-0 flex-shrink">
                           <img 
                             src={`/api/${item.favicon}`} 
                             alt="source icon" 
                             class="w-4 h-4 mr-2"
+                            style="flex-shrink: 0;"
                           />
-                          <span class="truncate">{item.rss_title}</span>
+                          <span class="truncate block">{item.rss_title}</span>
                         </div>
-                        <span class="text-xs">{formatDate(item.time)}</span>
+                        <span class="text-xs ml-2 whitespace-nowrap flex-shrink-0">{formatDate(item.time)}</span>
                       </div>
                     </div>
                   {/if}
