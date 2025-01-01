@@ -88,7 +88,11 @@
           </div>
 
           <!-- 文章内容 -->
-          {@html content.description}
+          <div 
+            class="article-content {content?.description?.match(/[\u4e00-\u9fa5]/) ? 'chinese' : ''}"
+          >
+            {@html content.description}
+          </div>
         </div>
       </div>
 
@@ -144,5 +148,19 @@
 
   :global(.summary) {
     @apply text-lg font-medium text-gray-600 mb-6 border-l-4 border-blue-500 pl-4;
+  }
+
+  :global(.article-content) {
+    line-height: 1.8;
+    letter-spacing: 0.5px;
+  }
+
+  :global(.article-content p) {
+    margin-bottom: 1.2em;
+  }
+
+  :global(.article-content.chinese) {
+    line-height: 2;
+    letter-spacing: 1px;
   }
 </style> 

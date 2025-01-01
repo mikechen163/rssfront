@@ -846,7 +846,7 @@
                     </div>
                   {:then content}
                     {#if content}
-                      <div class="prose max-w-none">
+                      <div class="prose max-w-none {content?.description?.match(/[\u4e00-\u9fa5]/) ? 'prose-chinese' : ''}">
                         {@html content.description}
                       </div>
                     {/if}
@@ -1013,5 +1013,14 @@
   .sticky {
     position: sticky;
     backdrop-filter: blur(8px);
+  }
+
+  :global(.prose-chinese) {
+    line-height: 2 !important;
+    letter-spacing: 1px !important;
+  }
+
+  :global(.prose-chinese p) {
+    margin-bottom: 1.2em !important;
   }
 </style>
