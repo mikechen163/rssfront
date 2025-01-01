@@ -56,6 +56,14 @@
         <div class="max-w-full md:max-w-3xl mx-auto px-4 py-8">
           <!-- 文章标题和元信息 -->
           <div class="p-4 border-b">
+            <div class="flex items-center text-gray-600 text-sm mb-2">
+              <img 
+                src={`/api/${content.favicon}`} 
+                alt="" 
+                class="w-4 h-4 mr-2"
+              />
+              <span>{content.rss_title}</span>
+            </div>
             <h1 class="text-xl font-bold mb-2">
               <a 
                 href={content.link} 
@@ -66,15 +74,7 @@
                 {content.title}
               </a>
             </h1>
-            <div class="flex items-center text-gray-600 text-sm">
-              <img 
-                src={`/api/${content.favicon}`} 
-                alt="" 
-                class="w-4 h-4 mr-2"
-              />
-              <span class="mr-4">{content.rss_title}</span>
-              <span>{content.time}</span>
-            </div>
+            <div class="text-gray-600 text-sm">{content.time}</div>
           </div>
 
           <!-- 封面图片 -->

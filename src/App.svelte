@@ -805,6 +805,14 @@
                 <div class="p-6">
                   <!-- 文章标题和元信息 -->
                   <div class="mb-6">
+                    <div class="flex items-center text-gray-600 text-sm mb-2">
+                      <img 
+                        src={`/api/${item.favicon}`} 
+                        alt="source icon" 
+                        class="w-4 h-4 mr-2"
+                      />
+                      <span>{item.rss_title}</span>
+                    </div>
                     <h1 class="text-2xl font-bold mb-4">
                       <a 
                         href={item.link} 
@@ -815,15 +823,7 @@
                         {item.title}
                       </a>
                     </h1>
-                    <div class="flex items-center text-gray-600 text-sm">
-                      <img 
-                        src={`/api/${item.favicon}`} 
-                        alt="source icon" 
-                        class="w-4 h-4 mr-2"
-                      />
-                      <span class="mr-4">{item.rss_title}</span>
-                      <span>{formatDate(item.time)}</span>
-                    </div>
+                    <div class="text-gray-600 text-sm">{formatDate(item.time)}</div>
                   </div>
 
                   <!-- 封面图片 -->
