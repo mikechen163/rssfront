@@ -27,6 +27,11 @@
   let userId = null;
   let userName = '';
   let currentCategory = null;
+  let isLoadingMore = false; // 是否正在加载更多
+  let retryCount = 0; // 重试计数器
+  let maxRetries = 3; // 最大重试次数
+  let isAllLoaded = false; // 是否已加载所有数据
+  let loadingError = null; // 加载错误信息
   
   // Determine whether to use middle column layout
   $: useMiddleColumn = viewMode === 'list' && selectedArticle;
@@ -95,10 +100,18 @@
     // 添加点击外部关闭菜单的事件监听
     document.addEventListener('click', handleClickOutside);
 
+    // 添加滚动监听
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('touchmove', handleTouchMove);
+
     return () => {
       window.removeEventListener('resize', checkMobile);
       // 清理事件监听
       document.removeEventListener('click', handleClickOutside);
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('touchmove', handleTouchMove);
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+      if (touchTimeout) clearTimeout(touchTimeout);
     };
   });
 
@@ -131,25 +144,69 @@
     }
   }
 
-  async function fetchFeeds(page = 1, rclass = null) {
-    isLoading = true;
+  async function fetchFeeds(page = 1, rclass = null, isLoadMore = false) {
+    if (isLoadingMore || isAllLoaded) return;
+    
+    if (page > totalPages && totalPages !== 0) {
+      isAllLoaded = true;
+      return;
+    }
+
+    isLoading = !isLoadMore;
+    isLoadingMore = isLoadMore;
+    loadingError = null;
+    
     try {
-      // 构建 URL，根据是否有 rclass 参数来决定使用哪种请求
       const url = rclass 
         ? `/api/update_selected_feed?rclass=${rclass}&page=${page}`
         : `/api/update_selected_feed?feed_id=${feedId}&page=${page}`;
         
       const response = await fetch(url);
       const data = await response.json();
-      if (data.success) {
-        feeds = data.feeds[0].items;
+      
+      if (data.success && data.feeds && data.feeds[0]?.items) {
+        const newItems = data.feeds[0].items;
+        
+        if (isLoadMore) {
+          const existingIds = new Set(feeds.map(item => item.itemid));
+          const uniqueNewItems = newItems.filter(item => !existingIds.has(item.itemid));
+          
+          if (uniqueNewItems.length === 0) {
+            isAllLoaded = true;
+            return;
+          }
+          
+          feeds = [...feeds, ...uniqueNewItems];
+        } else {
+          const uniqueItems = Array.from(
+            new Map(newItems.map(item => [item.itemid, item])).values()
+          );
+          feeds = uniqueItems;
+        }
+        
         totalPages = data.pagination.total_pages;
         currentPage = data.pagination.current_page;
+        
+        if (currentPage >= totalPages) {
+          isAllLoaded = true;
+        }
+        
+        retryCount = 0;
+      } else {
+        loadingError = 'Invalid response format';
       }
     } catch (error) {
-      console.error('Error fetching feeds:', error);
+      loadingError = error.message;
+      
+      if (retryCount < maxRetries) {
+        retryCount++;
+        setTimeout(() => {
+          fetchFeeds(page, rclass, isLoadMore);
+        }, 1000 * retryCount);
+      }
     } finally {
       isLoading = false;
+      isLoadingMore = false;
     }
   }
 
@@ -163,15 +220,26 @@
   }
 
   function selectFeed(rssid, rclass = null) {
+    // 重置所有状态
+    feeds = [];
+    isAllLoaded = false;
+    retryCount = 0;
+    loadingError = null;
+    currentPage = 1;
+    totalPages = 0;
+    lastScrollPercentage = 0;
+    
     if (rclass) {
       feedId = null;
-      currentCategory = rclass; // 设置当前选中的分类
-      fetchFeeds(1, rclass);
+      currentCategory = rclass;
     } else {
       feedId = rssid;
-      currentCategory = null; // 清除当前选中的分类
-      fetchFeeds(1);
+      currentCategory = null;
     }
+    
+    fetchFeeds(1).catch(() => {
+      // 错误已在 fetchFeeds 中处理
+    });
     
     if (window.innerWidth < 768) {
       isMenuOpen = false;
@@ -360,6 +428,43 @@
   function truncateTitle(title: string, maxLength: number = 30) {
     if (title.length <= maxLength) return title;
     return title.slice(0, maxLength) + '...';
+  }
+
+  // 修改滚动检测函数
+  let scrollTimeout: number | null = null;
+  let lastScrollPercentage = 0;
+
+  function handleScroll(event) {
+    if (scrollTimeout) return;
+    
+    scrollTimeout = setTimeout(() => {
+      if (isLoading || isLoadingMore || isAllLoaded) {
+        scrollTimeout = null;
+        return;
+      }
+      
+      const scrollPosition = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+      const scrollPercentage = (scrollPosition / (documentHeight - windowHeight)) * 100;
+      
+      if (Math.abs(scrollPercentage - lastScrollPercentage) > 5) {
+        lastScrollPercentage = scrollPercentage;
+      }
+      
+      if (scrollPercentage >= 30) {
+        fetchFeeds(currentPage + 1, currentCategory, true).catch(() => {
+          // 错误已在 fetchFeeds 中处理
+        });
+      }
+      
+      scrollTimeout = null;
+    }, 200);
+  }
+
+  // 修改触摸检测函数，使用相同的逻辑
+  function handleTouchMove() {
+    handleScroll(null); // 复用滚动检测逻辑
   }
 </script>
 
@@ -654,7 +759,7 @@
         {#if viewMode === 'list'}
           <!-- 列表视图 -->
           <div class="space-y-3">
-            {#each feeds as item (item.itemid)}
+            {#each feeds as item, index (item.itemid + '_' + index)}
               <article 
                 class="bg-white rounded-lg shadow-sm overflow-hidden cursor-pointer hover:shadow-md transition-shadow {selectedArticle?.itemid === item.itemid ? 'ring-2 ring-blue-500' : ''}"
                 on:click={() => handleItemClick(item)}
@@ -689,7 +794,7 @@
         {:else if viewMode === 'page'}
           <!-- 页面视图 -->
           <div class="max-w-4xl mx-auto space-y-12">
-            {#each feeds as item (item.itemid)}
+            {#each feeds as item, index (item.itemid + '_' + index)}
               <div class="bg-white rounded-lg shadow-lg overflow-hidden">
                 <div class="p-6">
                   <!-- 文章标题和元信息 -->
@@ -751,7 +856,7 @@
         {:else}
           <!-- 网格视图或图片视图 -->
           <div class={`grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 ${viewMode === 'image' ? 'grid-flow-dense' : ''}`}>
-            {#each feeds as item (item.itemid)}
+            {#each feeds as item, index (item.itemid + '_' + index)}
               {#if viewMode !== 'image' || (item.image_url?.startsWith('http'))}
                 <article 
                   class={`cursor-pointer transition-shadow ${
@@ -797,24 +902,23 @@
           </div>
         {/if}
 
-        <!-- 分页控件 -->
-        {#if totalPages > 0}
-          <div class="mt-8 flex justify-center space-x-2">
-            <button 
-              class="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
-              disabled={currentPage === 1 || isLoading}
-              on:click={() => fetchFeeds(currentPage - 1, currentCategory)}
-            >
-              Previous
-            </button>
-            <span class="px-4 py-2">Page {currentPage} of {totalPages}</span>
-            <button 
-              class="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
-              disabled={currentPage === totalPages || isLoading}
-              on:click={() => fetchFeeds(currentPage + 1, currentCategory)}
-            >
-              Next
-            </button>
+        <!-- 替换原有的分页控件 -->
+        {#if isLoadingMore}
+          <div class="mt-8 flex justify-center">
+            <div class="text-gray-600">Loading more...</div>
+          </div>
+        {:else if loadingError}
+          <div class="mt-8 flex justify-center">
+            <div class="text-red-500">
+              Error loading content: {loadingError}
+              {#if retryCount < maxRetries}
+                <span class="ml-2">Retrying... ({retryCount}/{maxRetries})</span>
+              {/if}
+            </div>
+          </div>
+        {:else if isAllLoaded}
+          <div class="mt-8 flex justify-center">
+            <div class="text-gray-600">No more content</div>
           </div>
         {/if}
       {/if}
