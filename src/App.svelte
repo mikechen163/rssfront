@@ -752,45 +752,47 @@
           <!-- 网格视图或图片视图 -->
           <div class={`grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 ${viewMode === 'image' ? 'grid-flow-dense' : ''}`}>
             {#each feeds as item (item.itemid)}
-              <article 
-                class={`cursor-pointer transition-shadow ${
-                  viewMode === 'image' 
-                    ? 'relative aspect-square overflow-hidden hover:opacity-90' 
-                    : 'bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl'
-                }`}
-                on:click={viewMode === 'image' ? null : () => handleItemClick(item)}
-              >
-                {#if item.image_url?.startsWith('http')}
-                  <img 
-                    src={processImageUrl(item.image_url, viewMode)} 
-                    alt={item.title}
-                    class={viewMode === 'image' 
-                      ? 'absolute inset-0 w-full h-full object-cover'
-                      : 'w-full aspect-video object-cover'
-                    }
-                    on:click={(e) => viewMode === 'image' ? handleImageClick(e, item) : null}
-                    on:error={handleImageError}
-                  />
-                {/if}
-                {#if viewMode === 'grid'}
-                  <div class="p-4 h-full flex flex-col">
-                    <h2 class="text-lg font-bold mb-2 {item.image_url?.startsWith('http') ? 'line-clamp-2' : ''}">{truncateTitle(item.title)}</h2>
-                    <p class="text-gray-600 mb-4 text-sm {item.image_url?.startsWith('http') ? 'line-clamp-2' : ''} flex-grow overflow-hidden">{item.summary}</p>
-                    <!-- 使用 mt-auto 确保这个 div 始终在底部 -->
-                    <div class="text-gray-600 text-sm flex justify-between items-center mt-auto">
-                      <div class="flex items-center">
-                        <img 
-                          src={`/api/${item.favicon}`} 
-                          alt="source icon" 
-                          class="w-4 h-4 mr-2"
-                        />
-                        <span class="truncate">{item.rss_title}</span>
+              {#if viewMode !== 'image' || (item.image_url?.startsWith('http'))}
+                <article 
+                  class={`cursor-pointer transition-shadow ${
+                    viewMode === 'image' 
+                      ? 'relative aspect-square overflow-hidden hover:opacity-90' 
+                      : 'bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl'
+                  }`}
+                  on:click={viewMode === 'image' ? null : () => handleItemClick(item)}
+                >
+                  {#if item.image_url?.startsWith('http')}
+                    <img 
+                      src={processImageUrl(item.image_url, viewMode)} 
+                      alt={item.title}
+                      class={viewMode === 'image' 
+                        ? 'absolute inset-0 w-full h-full object-cover'
+                        : 'w-full aspect-video object-cover'
+                      }
+                      on:click={(e) => viewMode === 'image' ? handleImageClick(e, item) : null}
+                      on:error={handleImageError}
+                    />
+                  {/if}
+                  {#if viewMode === 'grid'}
+                    <div class="p-4 h-full flex flex-col">
+                      <h2 class="text-lg font-bold mb-2 {item.image_url?.startsWith('http') ? 'line-clamp-2' : ''}">{truncateTitle(item.title)}</h2>
+                      <p class="text-gray-600 mb-4 text-sm {item.image_url?.startsWith('http') ? 'line-clamp-2' : ''} flex-grow overflow-hidden">{item.summary}</p>
+                      <!-- 使用 mt-auto 确保这个 div 始终在底部 -->
+                      <div class="text-gray-600 text-sm flex justify-between items-center mt-auto">
+                        <div class="flex items-center">
+                          <img 
+                            src={`/api/${item.favicon}`} 
+                            alt="source icon" 
+                            class="w-4 h-4 mr-2"
+                          />
+                          <span class="truncate">{item.rss_title}</span>
+                        </div>
+                        <span class="text-xs">{formatDate(item.time)}</span>
                       </div>
-                      <span class="text-xs">{formatDate(item.time)}</span>
                     </div>
-                  </div>
-                {/if}
-              </article>
+                  {/if}
+                </article>
+              {/if}
             {/each}
           </div>
         {/if}
