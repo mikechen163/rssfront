@@ -1024,4 +1024,14 @@
   :global(.prose-chinese p) {
     margin-bottom: 1.2em !important;
   }
+
+  /* 基础字体设置 */
+  :global(article) {
+    font-family: Verdana, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+
+  /* 中文内容字体设置 */
+  :global(.prose-chinese) {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Microsoft YaHei", "微软雅黑", sans-serif;
+  }
 </style>

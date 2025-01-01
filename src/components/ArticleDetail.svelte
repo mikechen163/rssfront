@@ -151,6 +151,7 @@
   }
 
   :global(.article-content) {
+    font-family: Verdana, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     line-height: 1.8;
     letter-spacing: 0.5px;
   }
@@ -160,6 +161,7 @@
   }
 
   :global(.article-content.chinese) {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Microsoft YaHei", "微软雅黑", sans-serif;
     line-height: 2;
     letter-spacing: 1px;
   }
