@@ -157,9 +157,14 @@
     loadingError = null;
     
     try {
-      const url = rclass 
-        ? `/api/update_selected_feed?rclass=${rclass}&page=${page}`
-        : `/api/update_selected_feed?feed_id=${feedId}&page=${page}`;
+      let url;
+      if (rclass) {
+        url = `/api/update_selected_feed?rclass=${rclass}&page=${page}`;
+      } else if (feedId) {
+        url = `/api/update_selected_feed?feed_id=${feedId}&page=${page}`;
+      } else {
+        url = `/api/update_selected_feed?feed_id=99999&page=${page}`;
+      }
         
       const response = await fetch(url);
       const data = await response.json();
@@ -229,17 +234,18 @@
     totalPages = 0;
     lastScrollPercentage = 0;
     
+    // 更新 feedId 和 currentCategory
     if (rclass) {
+      // 如果有 rclass,说明是点击的 "All",使用分类查询
       feedId = null;
       currentCategory = rclass;
+      fetchFeeds(1, rclass);
     } else {
+      // 否则是点击的具体订阅源,使用 feedId 查询
       feedId = rssid;
       currentCategory = null;
+      fetchFeeds(1);
     }
-    
-    fetchFeeds(1).catch(() => {
-      // 错误已在 fetchFeeds 中处理
-    });
     
     if (window.innerWidth < 768) {
       isMenuOpen = false;
