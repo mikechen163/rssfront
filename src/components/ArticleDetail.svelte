@@ -2,6 +2,37 @@
   export let content = null;
   export let onClose = () => {};
   export let isDesktop = false;
+  export let onNext = () => {};
+  export let onPrev = () => {};
+
+  let touchStartX = 0;
+  let touchEndX = 0;
+  const SWIPE_THRESHOLD = 50;
+
+  function handleTouchStart(event) {
+    touchStartX = event.touches[0].clientX;
+  }
+
+  function handleTouchMove(event) {
+    touchEndX = event.touches[0].clientX;
+  }
+
+  function handleTouchEnd() {
+    const swipeDistance = touchEndX - touchStartX;
+    
+    if (!isDesktop) {
+      if (Math.abs(swipeDistance) > SWIPE_THRESHOLD) {
+        if (swipeDistance > 0) {
+          onPrev();
+        } else {
+          onNext();
+        }
+      }
+    }
+    
+    touchStartX = 0;
+    touchEndX = 0;
+  }
 
   function handleKeydown(event) {
     if (event.key === 'Escape' && !isDesktop) {
@@ -28,7 +59,12 @@
 <svelte:window on:keydown={handleKeydown}/>
 
 {#if content}
-  <div class={isDesktop ? '' : 'fixed inset-0 bg-white z-50 w-full'}>
+  <div 
+    class={isDesktop ? '' : 'fixed inset-0 bg-white z-50 w-full'}
+    on:touchstart={handleTouchStart}
+    on:touchmove={handleTouchMove}
+    on:touchend={handleTouchEnd}
+  >
     <div class="flex flex-col h-full">
       <!-- 顶部导航栏 -->
       <div class="h-16 border-b flex items-center px-4 justify-between bg-white sticky top-0 z-10">

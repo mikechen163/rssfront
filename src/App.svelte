@@ -472,6 +472,37 @@
   function handleTouchMove() {
     handleScroll(null); // 复用滚动检测逻辑
   }
+
+  // 添加处理下一篇/上一篇文章的函数
+  function handleNextArticle() {
+    if (!selectedArticle) return;
+    
+    const currentIndex = feeds.findIndex(item => item.itemid === selectedArticle.itemid);
+    if (currentIndex < feeds.length - 1) {
+      const nextItem = feeds[currentIndex + 1];
+      fetchArticleContent(nextItem.itemid, nextItem);
+    } else {
+      // 如果是最后一篇文章，可以尝试加载更多
+      if (!isAllLoaded) {
+        fetchFeeds(currentPage + 1, currentCategory, true).then(() => {
+          if (feeds.length > currentIndex + 1) {
+            const nextItem = feeds[currentIndex + 1];
+            fetchArticleContent(nextItem.itemid, nextItem);
+          }
+        });
+      }
+    }
+  }
+
+  function handlePrevArticle() {
+    if (!selectedArticle) return;
+    
+    const currentIndex = feeds.findIndex(item => item.itemid === selectedArticle.itemid);
+    if (currentIndex > 0) {
+      const prevItem = feeds[currentIndex - 1];
+      fetchArticleContent(prevItem.itemid, prevItem);
+    }
+  }
 </script>
 
 <svelte:head>
@@ -957,6 +988,8 @@
         content={selectedArticle} 
         onClose={() => selectedArticle = null}
         isDesktop={false}
+        onNext={handleNextArticle}
+        onPrev={handlePrevArticle}
       />
     </div>
   {/if}
