@@ -13,48 +13,48 @@
   }
 
   async function handleSubmit() {
-    isLoading = true;
-    errorMessage = '';
-    
-    try {
-      const params = new URLSearchParams({
+  isLoading = true;
+  errorMessage = '';
+  
+  try {
+    const response = await fetch('/api/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
         email,
         password,
-        json: 'true'
-      });
-      const response = await fetch(`/api/login?${params}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
+        json: true
+      })
+    });
 
-      const data = await response.json();
+    const data = await response.json();
+    
+    if (data.success) {
+      // 设置 cookie
+      setUserCookie(data.userid);
       
-      if (data.success) {
-        // 设置 cookie
-        setUserCookie(data.userid);
-        
-        // 登录成功,更新RSS订阅
-        const rssResponse = await fetch(`/api/get_user_rss/${data.userid}`);
-        if (rssResponse.ok) {
-          dispatch('loginSuccess', {
-            userId: data.userid,
-            name: data.name // 确保传递用户名
-          });
-        } else {
-          throw new Error('获取RSS数据失败');
-        }
+      // 登录成功,更新RSS订阅
+      const rssResponse = await fetch(`/api/get_user_rss/${data.userid}`);
+      if (rssResponse.ok) {
+        dispatch('loginSuccess', {
+          userId: data.userid,
+          name: data.name
+        });
       } else {
-        errorMessage = '登录失败,请检查邮箱和密码';
+        throw new Error('获取RSS数据失败');
       }
-    } catch (error) {
-      console.error('登录错误:', error);
-      errorMessage = '登录过程中发生错误,请重试';
-    } finally {
-      isLoading = false;
+    } else {
+      errorMessage = '登录失败,请检查邮箱和密码';
     }
+  } catch (error) {
+    console.error('登录错误:', error);
+    errorMessage = '登录过程中发生错误,请重试';
+  } finally {
+    isLoading = false;
   }
+}
 </script>
 
 <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
